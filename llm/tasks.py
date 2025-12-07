@@ -26,6 +26,32 @@ def translate(text, target_language):
         except Exception as e:
             return f"Translation error: {e}"
 
+def _speed_to_text(audio_file):
+    """
+    Convert speech audio content to text using OpenAI's speech-to-text capabilities.
+    """
+    try:
+        if audio_file is None:
+            return "No audio content provided. Try again."
+        
+        with open(audio_file, "rb") as f:
+            response = client.audio.transcriptions.create(
+                model=settings.STT_MODEL,
+                file=f,
+                response_format="text"
+            )
+        return response
+    except Exception as e:
+        return f"Speech-to-text error: {e}"
+
+
+def process_audio(audio_content):
+    """
+    Process the audio content, convert to text, and update chat history.
+    """
+    transcription = _speed_to_text(audio_content)
+    return transcription, transcription
+
 
 def generate_gold_investment_advice(price, currency, country, history):
     """

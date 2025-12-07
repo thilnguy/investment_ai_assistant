@@ -1,6 +1,5 @@
 import gradio as gr
-from llm.tasks import chat, translate
-import config.settings as settings
+from llm.tasks import chat, translate, process_audio
 
 def update_label(language):
     return gr.update(label=f"{language} Translation")
@@ -42,7 +41,7 @@ def main():
                     send_btn = gr.Button("Send", variant="primary")
                     clear_btn = gr.Button("Clear chat")
                 
-                gr.Markdown("### 🎤 Speech Input")
+                gr.Markdown("### 🎤 Your audio")
                 speech_input = gr.Audio(type="filepath", label="Record your message")
                 audio_content = gr.Textbox(
                     label="Transcribed Text from Speech",
@@ -85,15 +84,27 @@ def main():
         )
         
         clear_btn.click(
-            fn=lambda: ([], "", "", None),
+            fn=lambda: ([], "", "", "", None),
             inputs=[],
-            outputs=[chatbot, txt_input, translation_output, audio_content]
+            outputs=[chatbot, txt_input, translation_output, audio_content, speech_input]
         )  
            
         send_btn.click(
             fn=process_investment_query,
             inputs=[txt_input, chatbot, investment_dropdown, language_dropdown],
             outputs=[chatbot, translation_output],
+        )
+        
+        txt_input.submit(
+            fn=process_investment_query,
+            inputs=[txt_input, chatbot, investment_dropdown, language_dropdown],
+            outputs=[chatbot, translation_output],
+        )
+        
+        speech_input.change(
+            fn=process_audio,
+            inputs=[speech_input],
+            outputs=[txt_input, audio_content],
         )
                 
     ui.launch(theme=gr.themes.Soft(), inbrowser=True)
