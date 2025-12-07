@@ -1,8 +1,11 @@
 import datetime
+import os
 import config.settings as settings
 import requests
 import llm.tasks as tasks
 import json
+import sys
+from pathlib import Path
 
 
 GOLD_API_URL = "https://api.metalpriceapi.com/v1/latest"
@@ -137,25 +140,19 @@ def get_gold_price(country):
         'data_source': 'API' if api_success else 'recent_updated_prices',
     }
     
+def _load_thresholds():
+    """Load gold price thresholds from JSON file."""
+    project_root = Path(sys.path[0]).resolve()
+    path = project_root / 'config' / 'gold_thresholds.json'
+    with open(path, 'r') as f:
+        thresholds = json.load(f)
+    return thresholds
 
 def get_risk_level_assessment(price, currency):
     """Risk assessment tool that determines price level and provides technical analysis"""
     
     # Currency-specific price thresholds (approximate)
-    thresholds = {
-        'USD': {'low': 2000, 'moderate': 2300, 'high': 2500},
-        'EUR': {'low': 1850, 'moderate': 2150, 'high': 2350},
-        'GBP': {'low': 1600, 'moderate': 1850, 'high': 2100},
-        'JPY': {'low': 300000, 'moderate': 340000, 'high': 380000},
-        'CAD': {'low': 2700, 'moderate': 3100, 'high': 3500},
-        'AUD': {'low': 3000, 'moderate': 3500, 'high': 4000},
-        'INR': {'low': 160000, 'moderate': 190000, 'high': 220000},
-        'CNY': {'low': 14000, 'moderate': 16500, 'high': 19000},
-        'SAR': {'low': 7500, 'moderate': 8500, 'high': 9500},
-        'AED': {'low': 7300, 'moderate': 8300, 'high': 9300},
-        'EGP': {'low': 95000, 'moderate': 110000, 'high': 125000},
-        'VND': {'low': 46000000, 'moderate': 80000000, 'high': 100000000},
-    }
+    thresholds = _load_thresholds()
     
     # Get thresholds for currency or use USD as default
     thresh = thresholds.get(currency, thresholds['USD'])
