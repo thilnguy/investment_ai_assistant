@@ -1,6 +1,6 @@
 import datetime
 import os
-import config.settings as settings
+from config.settings import settings
 import requests
 import llm.tasks as tasks
 import json
@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 GOLD_API_URL = "https://api.metalpriceapi.com/v1/latest"
-GOLD_API_KEY = settings.METAL_PRICE_API_KEY
+GOLD_API_KEY = settings.METAL_PRICE_API_KEY.get_secret_value()
 
 gold_price_tool = {
     "name": "get_gold_price",

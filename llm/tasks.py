@@ -1,7 +1,7 @@
 import config.prompts as prompts
 from llm.llm_client import client
 import tools.tools as tools
-import config.settings as settings
+from config.settings import settings
 
 
 def translate(text, target_language):
